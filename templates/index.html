@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ImagineApp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="{{ url_for('static', filename='script.js') }}"></script>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md">
+        <h1 class="text-2xl font-bold mb-4">ImagineApp</h1>
+
+        <!-- Display Duration -->
+        <label class="block">Display Duration (HH:MM:SS)</label>
+        <input type="text" id="display_duration" class="w-full p-2 border rounded" value="{{ config['display_duration'] }}">
+
+        <!-- Full Screen Toggle -->
+        <label class="flex items-center mt-4">
+            <span class="mr-2">Full Screen</span>
+            <input type="checkbox" id="full_screen" class="toggle-checkbox" {% if config['full_screen'] %}checked{% endif %}>
+        </label>
+
+        <!-- Local Files Only Toggle -->
+        <label class="flex items-center mt-4">
+            <span class="mr-2">Local Files Only</span>
+            <input type="checkbox" id="local_files_only" class="toggle-checkbox" {% if config['local_files_only'] %}checked{% endif %}>
+        </label>
+
+        <!-- Max Num Saved Files -->
+        <label class="block mt-4">Max Num Saved Files</label>
+        <input type="number" id="max_num_saved_files" class="w-full p-2 border rounded" value="{{ config['max_num_saved_files'] }}">
+
+        <!-- Background Color Picker -->
+        <label class="block mt-4">Background Color</label>
+        <input type="color" id="background_color" class="w-full p-2 border rounded">
+
+        <!-- Active Theme -->
+        <label class="block mt-4">Active Theme</label>
+        <select id="active_theme" class="w-full p-2 border rounded">
+            <option>{{ config['active_theme'] }}</option>
+        </select>
+
+        <!-- Active Style -->
+        <label class="block mt-4">Active Style</label>
+        <select id="active_style" class="w-full p-2 border rounded">
+            <option>{{ config['active_style'] }}</option>
+        </select>
+
+        <!-- Action Buttons -->
+        <div class="mt-6 flex justify-between">
+            <button id="cancelBtn" class="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
+            <button id="updateBtn" class="bg-blue-500 text-white px-4 py-2 rounded">Update</button>
+        </div>
+    </div>
+</body>
+</html>
