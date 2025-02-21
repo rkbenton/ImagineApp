@@ -11,6 +11,17 @@
     <div class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md">
         <h1 class="text-2xl font-bold mb-4">ImagineApp</h1>
 
+            <!-- Error Modal (Startup Errors) -->
+        {% if config_error %}
+        <div id="startup-error-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div class="bg-white p-6 rounded-lg shadow-md w-80">
+                <h2 class="text-xl font-bold text-red-600">Error</h2>
+                <p>{{ config_error }}</p>
+                <button onclick="closeStartupErrorModal()" class="mt-4 bg-red-500 text-white px-4 py-2 rounded">Close</button>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Display Duration -->
         <div class="flex items-center justify-between">
             <label class="block">Display Duration (HH:MM:SS)</label>
@@ -89,6 +100,18 @@
             <button onclick="closeModal()" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded">Close</button>
         </div>
     </div>
-
+    <!-- Error Modal -->
+    <div id="error-modal" class="fixed inset-0 flex items-center justify-center hidden bg-black bg-opacity-50">
+        <div class="bg-white p-6 rounded-lg shadow-md w-80">
+            <h2 class="text-xl font-bold text-red-600">Error</h2>
+            <p id="error-message" class="mt-2"></p>
+            <button onclick="closeErrorModal()" class="mt-4 bg-red-500 text-white px-4 py-2 rounded">Close</button>
+        </div>
+    </div>
+    <script>
+        function closeStartupErrorModal() {
+            document.getElementById("startup-error-modal").classList.add("hidden");
+        }
+    </script>
 </body>
 </html>

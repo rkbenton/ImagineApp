@@ -18,7 +18,16 @@ function closeModal() {
     document.getElementById("modal-container").classList.add("hidden");
 }
 
-document.getElementById("updateBtn").addEventListener("click", function() {
+function showError(message) {
+    document.getElementById("error-message").textContent = message;
+    document.getElementById("error-modal").classList.remove("hidden");
+}
+
+function closeErrorModal() {
+    document.getElementById("error-modal").classList.add("hidden");
+}
+
+document.getElementById("updateBtn").addEventListener("click", function () {
     const data = {
         display_duration: document.getElementById("display_duration").value,
         full_screen: document.getElementById("full_screen").checked,
@@ -31,12 +40,22 @@ document.getElementById("updateBtn").addEventListener("click", function() {
 
     fetch("/update_config", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify(data)
-    }).then(response => response.json())
-      .then(data => alert(data.message));
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                showError(data.error);
+            } else {
+                alert(data.message);  // Success feedback
+            }
+        })
+        .catch(() => showError("Network error. Please try again."));
 });
 
-document.getElementById("cancelBtn").addEventListener("click", function() {
+
+document.getElementById("cancelBtn").addEventListener("click", function () {
     location.reload();
 });
+
