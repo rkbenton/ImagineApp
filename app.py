@@ -1,28 +1,32 @@
-from flask import Flask, render_template, request, jsonify
-import json
 import os
+import json
+import logging
+from flask import Flask, render_template, request, jsonify
+from DataManager import DataManager
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 app = Flask(__name__)
-CONFIG_PATH = "config.json"
-
-def load_config():
-    with open(CONFIG_PATH, "r") as file:
-        return json.load(file)
-
-def save_config(data):
-    with open(CONFIG_PATH, "w") as file:
-        json.dump(data, file, indent=4)
+data_manager = DataManager()
 
 @app.route("/")
 def index():
-    config = load_config()
-    return render_template("index.html", config=config)
+    cfg_err=data_manager.get_config_error()
+    return render_template("index.html", config=data_manager.get_config(), config_error=cfg_err)
 
 @app.route("/update_config", methods=["POST"])
 def update_config():
-    data = request.json
-    save_config(data)
-    return jsonify({"message": "Configuration updated successfully!"})
+    if data_manager.get_config_error():
+        return jsonify({"error": data_manager.get_config_error()}), 500
 
-if __name__ == "__main__":
-    app.run(debug=True)
+    try:
+        data_manager.config_data = request.json
+        success = data_manager.save_configuration()
+
+        if not success:
+            return jsonify({"error": "Failed to save configuration"}), 500
+
+        return jsonify({"message": "Configuration updated successfully!"})
+    except Exception as e:
+        return jsonify({"error": "An unexpected error occurred. Please try again."}), 500
