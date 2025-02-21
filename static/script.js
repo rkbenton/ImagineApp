@@ -1,3 +1,23 @@
+const helpTexts = {
+    "help-display-duration": "Set the display duration in HH:MM:SS format.",
+    "help-full-screen": "Enable full-screen mode for better viewing.",
+    "help-local-files": "Enable this to use only locally stored files.",
+    "help-max-files": "Set the maximum number of saved image files.",
+    "help-bg-color": "Choose the background color for the display.",
+    "help-theme": "Select the active theme for the display.",
+    "help-style": "Choose the active style from the available options."
+};
+
+function openModal(helpKey) {
+    document.getElementById("modal-title").textContent = "Help";
+    document.getElementById("modal-text").textContent = helpTexts[helpKey];
+    document.getElementById("modal-container").classList.remove("hidden");
+}
+
+function closeModal() {
+    document.getElementById("modal-container").classList.add("hidden");
+}
+
 document.getElementById("updateBtn").addEventListener("click", function() {
     const data = {
         display_duration: document.getElementById("display_duration").value,

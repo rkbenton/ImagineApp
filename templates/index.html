@@ -12,37 +12,64 @@
         <h1 class="text-2xl font-bold mb-4">ImagineApp</h1>
 
         <!-- Display Duration -->
-        <label class="block">Display Duration (HH:MM:SS)</label>
+        <div class="flex items-center justify-between">
+            <label class="block">Display Duration (HH:MM:SS)</label>
+            <button class="text-blue-500" onclick="openModal('help-display-duration')">ℹ️</button>
+        </div>
         <input type="text" id="display_duration" class="w-full p-2 border rounded" value="{{ config['display_duration'] }}">
 
         <!-- Full Screen Toggle -->
-        <label class="flex items-center mt-4">
-            <span class="mr-2">Full Screen</span>
-            <input type="checkbox" id="full_screen" class="toggle-checkbox" {% if config['full_screen'] %}checked{% endif %}>
-        </label>
+        <div class="flex items-center justify-between mt-4">
+            <span>Full Screen</span>
+            <div class="flex items-center">
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="full_screen" class="sr-only peer" {% if config['full_screen'] %}checked{% endif %}>
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+                <button class="text-blue-500 ml-2" onclick="openModal('help-full-screen')">ℹ️</button>
+            </div>
+        </div>
 
         <!-- Local Files Only Toggle -->
-        <label class="flex items-center mt-4">
-            <span class="mr-2">Local Files Only</span>
-            <input type="checkbox" id="local_files_only" class="toggle-checkbox" {% if config['local_files_only'] %}checked{% endif %}>
-        </label>
+        <div class="flex items-center justify-between mt-4">
+            <span>Local Files Only</span>
+            <div class="flex items-center">
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="local_files_only" class="sr-only peer" {% if config['local_files_only'] %}checked{% endif %}>
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+                <button class="text-blue-500 ml-2" onclick="openModal('help-local-files')">ℹ️</button>
+            </div>
+        </div>
 
         <!-- Max Num Saved Files -->
-        <label class="block mt-4">Max Num Saved Files</label>
+        <div class="flex items-center justify-between mt-4">
+            <label class="block">Max Num Saved Files</label>
+            <button class="text-blue-500" onclick="openModal('help-max-files')">ℹ️</button>
+        </div>
         <input type="number" id="max_num_saved_files" class="w-full p-2 border rounded" value="{{ config['max_num_saved_files'] }}">
 
         <!-- Background Color Picker -->
-        <label class="block mt-4">Background Color</label>
+        <div class="flex items-center justify-between mt-4">
+            <label class="block">Background Color</label>
+            <button class="text-blue-500" onclick="openModal('help-bg-color')">ℹ️</button>
+        </div>
         <input type="color" id="background_color" class="w-full p-2 border rounded">
 
         <!-- Active Theme -->
-        <label class="block mt-4">Active Theme</label>
+        <div class="flex items-center justify-between mt-4">
+            <label class="block">Active Theme</label>
+            <button class="text-blue-500" onclick="openModal('help-theme')">ℹ️</button>
+        </div>
         <select id="active_theme" class="w-full p-2 border rounded">
             <option>{{ config['active_theme'] }}</option>
         </select>
 
         <!-- Active Style -->
-        <label class="block mt-4">Active Style</label>
+        <div class="flex items-center justify-between mt-4">
+            <label class="block">Active Style</label>
+            <button class="text-blue-500" onclick="openModal('help-style')">ℹ️</button>
+        </div>
         <select id="active_style" class="w-full p-2 border rounded">
             <option>{{ config['active_style'] }}</option>
         </select>
@@ -53,5 +80,15 @@
             <button id="updateBtn" class="bg-blue-500 text-white px-4 py-2 rounded">Update</button>
         </div>
     </div>
+
+    <!-- Help Modals -->
+    <div id="modal-container" class="fixed inset-0 flex items-center justify-center hidden bg-black bg-opacity-50">
+        <div id="modal-content" class="bg-white p-6 rounded-lg shadow-md w-80">
+            <h2 class="text-xl font-bold mb-4" id="modal-title"></h2>
+            <p id="modal-text"></p>
+            <button onclick="closeModal()" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded">Close</button>
+        </div>
+    </div>
+
 </body>
 </html>
