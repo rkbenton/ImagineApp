@@ -1,7 +1,7 @@
 # Changelog for ImageApp
 
 
-Changelog Summary for Recent Updates
+# v0.1.0 Changelog Summary for Recent Updates
 Enhancements & Refactoring
 
     Introduced DataManager as a Singleton
