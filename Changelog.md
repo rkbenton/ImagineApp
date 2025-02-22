@@ -1,42 +1,37 @@
-# Changelog for ImageApp
+# Changelog for ImagineApp
 
+## v0.1.1 - Latest Updates
 
-# v0.1.0 Changelog Summary for Recent Updates
-Enhancements & Refactoring
+### Enhancements & Refactoring
+- **Improved Theme & Styles Handling**
+  - Styles dropdown now updates **dynamically** when the theme changes. (*ac329cd, f011343*)  
+  - Moved **active-theme → theme-disk-name mapping** from the UI layer to the business logic layer for better separation of concerns. (*9dd51aa*)  
 
-    Introduced DataManager as a Singleton
-        Centralized config and theme data handling.
-        Ensures a single instance manages configuration throughout the app.
+- **DataManager Improvements**
+  - Added **quality-of-life (QOL) enhancements** in `DataManager.py` to streamline data handling. (*48e82c2*)  
+  - Introduced **structured logging** in `DataManager.py` for better debugging. (*107697a*)  
+  - Moved **business logic** related to data management from Flask routes to `DataManager.py`. (*d1744e5*)  
 
-    Environment Variable Handling
-        Config path (IM_IM_CONFIG_PATH) is now accessed via os.environ[NAME] instead of os.getenv().
-        self.config_error is initialized before calling load_dotenv() to prevent uninitialized errors.
+### Error Handling & UI Enhancements
+- **Better Error Handling**
+  - Improved error handling throughout the application, ensuring more graceful failures and logging. (*7e6f069*)  
 
-Error Handling & UI Improvements
+- **User Experience (UX) Improvements**
+  - Added **help buttons (`?`)** for key fields to provide guidance. (*566e091*)  
 
-    Improved Startup Error Handling
-        If the config path is missing or invalid, the error is stored in DataManager instead of crashing Flask.
-        The error is passed to Flask and displayed in the UI.
+### Other Updates
+- **Documentation & Requirements**
+  - Cleaned up and updated `README.md`. (*bcf2129, 421256b*)  
+  - Updated `requirements.txt` with necessary dependencies. (*8462860*)  
 
-    Added Error Reporting via Modals
-        Frontend: Errors (including startup errors) are now shown in a modal dialog instead of failing silently.
-        Backend: Flask routes return structured JSON errors, including unexpected failures and file issues.
+- **Versioning**
+  - Added **version `v0.1.0`** to `Changelog.md` to track major changes. (*cb23d90*)  
 
-    Updated UI Components
-        Boolean Fields: Replaced checkboxes with Tailwind sliding toggles.
-        Help Buttons (?) now open modals for better mobile UX.
-        Error Modals: Display messages when config loading or saving fails.
+---
 
-Logging & Debugging Enhancements
-
-    Added structured logging using logging module
-        Logs errors to the console for easier debugging.
-        Catches FileNotFoundError, JSONDecodeError, and other issues gracefully.
-
-# Initial Commit
-This is a fully functional Flask + Tailwind UI prototype. It covers: 
-
-✅ Config loading & saving
-✅ Tailwind styling
-✅ Interactive UI with JavaScript
-✅ Basic validation & toggles
+## v0.1.0 - Initial Release
+- Introduced **ImagineApp** with a Flask + Tailwind UI.  
+- Implemented **DataManager as a Singleton** for managing configuration and theme data.  
+- Added **error reporting via modals** to improve UI feedback.  
+- Replaced checkboxes with **Tailwind sliding toggles** for boolean fields.  
+- **Implemented structured logging** for debugging and troubleshooting.  
