@@ -34,7 +34,7 @@ document.getElementById("updateBtn").addEventListener("click", function () {
         local_files_only: document.getElementById("local_files_only").checked,
         max_num_saved_files: parseInt(document.getElementById("max_num_saved_files").value),
         background_color: document.getElementById("background_color").value,
-        active_theme: document.getElementById("active_theme").value,
+        theme_display_name: themeDropdown.value, // This is the display_name
         active_style: document.getElementById("active_style").value
     };
 
