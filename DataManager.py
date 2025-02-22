@@ -1,9 +1,14 @@
 import os
 import json
-import yaml
+import logging
+import os
 import threading
 from typing import Dict, Any
 from dotenv import load_dotenv
+
+logger = logging.getLogger(__name__)
+
+
 class DataManager:
     _instance = None
     _lock = threading.Lock()
