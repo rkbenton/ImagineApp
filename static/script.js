@@ -28,6 +28,8 @@ function closeErrorModal() {
 }
 
 document.getElementById("updateBtn").addEventListener("click", function () {
+    const themeDropdown = document.getElementById("active_theme");
+
     const data = {
         display_duration: document.getElementById("display_duration").value,
         full_screen: document.getElementById("full_screen").checked,
@@ -55,7 +57,30 @@ document.getElementById("updateBtn").addEventListener("click", function () {
 });
 
 
-document.getElementById("cancelBtn").addEventListener("click", function () {
-    location.reload();
+// Update styles dropdown dynamically when the theme changes
+document.getElementById("active_theme").addEventListener("change", function () {
+    const selectedTheme = this.value;
+    const stylesDropdown = document.getElementById("active_style");
+
+    fetch(`/get_styles?theme=${selectedTheme}`)
+        .then(response => response.json())
+        .then(styles => {
+            stylesDropdown.innerHTML = "";  // Clear current options
+            // for (const [style] of Object.entries(styles)) {
+            for (const style of styles) {
+                let option = document.createElement("option");
+                option.value = style;
+                option.textContent = style;
+                stylesDropdown.appendChild(option);
+            }
+        })
+        .catch(() => showError("Failed to load styles for this theme."));
+});
+
+
+document.getElementById("revertBtn").addEventListener("click", function (event) {
+    event.preventDefault()
+    location.href = location.href;
+    return false;
 });
 
