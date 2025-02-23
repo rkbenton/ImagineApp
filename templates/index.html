@@ -6,6 +6,15 @@
     <title>ImagineApp</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="{{ url_for('static', filename='script.js') }}"></script>
+<style>
+body {
+    background-image: url('static/images/colorful_bird.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: #eeeeee; /* Fallback color */
+}
+</style>
 </head>
 <body class="bg-gray-100 p-4">
     <div class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md">
