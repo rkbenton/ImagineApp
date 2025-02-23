@@ -4,6 +4,8 @@ from typing import List
 from flask import Flask, render_template, request, jsonify
 
 from DataManager import DataManager
+from flask import send_from_directory
+import os
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -67,3 +69,10 @@ def get_styles():
     # get the theme's styles based on the display name
     style_names: List[str] = data_manager.get_style_names_by_display_name(theme_display_name)
     return jsonify(style_names)
+
+
+@app.route('/favicon.ico')
+def favicon():
+    print("Sending images/favicon.ico")
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'images/favicon.ico', mimetype='image/vnd.microsoft.icon')
