@@ -8,11 +8,13 @@ from DataManager import DataManager
 # Configure logging
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-logger.info('-- Started --')
+logger.info(f'-- Started "{__name__}" --')
 
 app = Flask(__name__)
 data_manager = DataManager()
 
+if __name__ == "__app__":
+    app.run(host='0.0.0.0', port=5000, ssl_context='adhoc')
 
 @app.route("/")
 def index():
