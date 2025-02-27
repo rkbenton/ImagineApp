@@ -1,8 +1,9 @@
 {
-    "display_duration": "02:30:00",
-    "full_screen": false,
+    "display_duration": "03:33:00",
+    "full_screen": true,
     "local_files_only": true,
-    "max_num_saved_files": 250,
+    "minimum_rating_filter": 1.0,
+    "max_num_saved_files": 333,
     "background_color": "#000000",
     "active_theme": "creative",
     "active_style": "random"
