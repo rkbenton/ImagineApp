@@ -6,129 +6,134 @@
     <title>ImagineApp</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="{{ url_for('static', filename='script.js') }}"></script>
-<style>
-body {
-    background-image: url('static/images/colorful_bird.png');
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-color: #ffffff; /* Fallback color */
-}
-</style>
+    <style>
+        body {
+            background-image: url('static/images/colorful_bird.png');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: #ffffff; /* Fallback color */
+        }
+    </style>
 </head>
 <body class="bg-gray-100 p-4">
-    <div class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md">
-        <h1 class="text-2xl font-bold mb-4">ImagineApp</h1>
+<div class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md">
+    <h1 class="text-2xl font-bold mb-4">ImagineApp</h1>
 
-            <!-- Error Modal (Startup Errors) -->
-        {% if config_error %}
+    <!-- Error Modal (Startup Errors) -->
+    {% if config_error %}
         <div id="startup-error-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div class="bg-white p-6 rounded-lg shadow-md w-80">
                 <h2 class="text-xl font-bold text-red-600">Error</h2>
                 <p>{{ config_error }}</p>
-                <button onclick="closeStartupErrorModal()" class="mt-4 bg-red-500 text-white px-4 py-2 rounded">Close</button>
+                <button onclick="closeStartupErrorModal()" class="mt-4 bg-red-500 text-white px-4 py-2 rounded">Close
+                </button>
             </div>
         </div>
-        {% endif %}
+    {% endif %}
 
-        <!-- Display Duration -->
-        <div class="flex items-center justify-between">
-            <label class="block">Display Duration (HH:MM:SS)</label>
-            <button class="text-blue-500" onclick="openModal('help-display-duration')">ℹ️</button>
-        </div>
-        <input type="text" id="display_duration" class="w-full p-2 border rounded" value="{{ config['display_duration'] }}">
+    <!-- Display Duration -->
+    <div class="flex items-center justify-between">
+        <label class="block">Display Duration (HH:MM:SS)</label>
+        <button class="text-blue-500" onclick="openModal('help-display-duration')">ℹ️</button>
+    </div>
+    <input type="text" id="display_duration" class="w-full p-2 border rounded" value="{{ config['display_duration'] }}">
 
-        <!-- Full Screen Toggle -->
-        <div class="flex items-center justify-between mt-4">
-            <span>Full Screen</span>
-            <div class="flex items-center">
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="full_screen" class="sr-only peer" {% if config['full_screen'] %}checked{% endif %}>
-                    <div class="w-11 h-6 bg-gray-200 peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                </label>
-                <button class="text-blue-500 ml-2" onclick="openModal('help-full-screen')">ℹ️</button>
-            </div>
-        </div>
-
-        <!-- Local Files Only Toggle -->
-        <div class="flex items-center justify-between mt-4">
-            <span>Local Files Only</span>
-            <div class="flex items-center">
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="local_files_only" class="sr-only peer" {% if config['local_files_only'] %}checked{% endif %}>
-                    <div class="w-11 h-6 bg-gray-200 peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                </label>
-                <button class="text-blue-500 ml-2" onclick="openModal('help-local-files')">ℹ️</button>
-            </div>
-        </div>
-
-        <!-- Max Num Saved Files -->
-        <div class="flex items-center justify-between mt-4">
-            <label class="block">Max Num Saved Files</label>
-            <button class="text-blue-500" onclick="openModal('help-max-files')">ℹ️</button>
-        </div>
-        <input type="number" id="max_num_saved_files" class="w-full p-2 border rounded" value="{{ config['max_num_saved_files']}}">
-
-        <!-- Background Color Picker -->
-        <div class="flex items-center justify-between mt-4">
-            <label class="block">Background Color</label>
-            <button class="text-blue-500" onclick="openModal('help-bg-color')">ℹ️</button>
-        </div>
-        <input type="color" id="background_color" class="w-full p-2 border rounded" value="{{ config['background_color'] }}">
-
-        <!-- Active Theme -->
-        <div class="flex items-center justify-between mt-4">
-            <label class="block">Active Theme</label>
-            <button class="text-blue-500" onclick="openModal('help-theme')">ℹ️</button>
-        </div>
-<select id="active_theme" class="w-full p-2 border rounded">
-    {% for theme_name in all_theme_names %}
-    <option value="{{ theme_name }}"
-            {% if current_theme_display_name == theme_name %}selected{% endif %}>
-        {{ theme_name }}
-    </option>
-    {% endfor %}
-</select>
-        <!-- Active Style -->
-        <div class="flex items-center justify-between mt-4">
-            <label class="block">Active Style</label>
-            <button class="text-blue-500" onclick="openModal('help-style')">ℹ️</button>
-        </div>
-<select id="active_style" class="w-full p-2 border rounded">
-    {% for style_name in current_styles %}
-    <option value="{{ style_name }}" {% if config['active_style'] == style_name %}selected{% endif %}>
-        {{ style_name }}
-    </option>
-    {% endfor %}
-</select>
-
-        <!-- Action Buttons -->
-        <div class="mt-6 flex justify-between">
-            <button id="revertBtn" class="bg-gray-500 text-white px-4 py-2 rounded">Revert</button>
-            <button id="updateBtn" class="bg-blue-500 text-white px-4 py-2 rounded">Update</button>
+    <!-- Full Screen Toggle -->
+    <div class="flex items-center justify-between mt-4">
+        <span>Full Screen</span>
+        <div class="flex items-center">
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="full_screen" class="sr-only peer"
+                       {% if config['full_screen'] %}checked{% endif %}>
+                <div class="w-11 h-6 bg-gray-200 peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+            <button class="text-blue-500 ml-2" onclick="openModal('help-full-screen')">ℹ️</button>
         </div>
     </div>
 
-    <!-- Help Modals -->
-    <div id="modal-container" class="fixed inset-0 flex items-center justify-center hidden bg-black bg-opacity-50">
-        <div id="modal-content" class="bg-white p-6 rounded-lg shadow-md w-80">
-            <h2 class="text-xl font-bold mb-4" id="modal-title"></h2>
-            <p id="modal-text"></p>
-            <button onclick="closeModal()" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded">Close</button>
+    <!-- Local Files Only Toggle -->
+    <div class="flex items-center justify-between mt-4">
+        <span>Local Files Only</span>
+        <div class="flex items-center">
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="local_files_only" class="sr-only peer"
+                       {% if config['local_files_only'] %}checked{% endif %}>
+                <div class="w-11 h-6 bg-gray-200 peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+            <button class="text-blue-500 ml-2" onclick="openModal('help-local-files')">ℹ️</button>
         </div>
     </div>
-    <!-- Error Modal -->
-    <div id="error-modal" class="fixed inset-0 flex items-center justify-center hidden bg-black bg-opacity-50">
-        <div class="bg-white p-6 rounded-lg shadow-md w-80">
-            <h2 class="text-xl font-bold text-red-600">Error</h2>
-            <p id="error-message" class="mt-2"></p>
-            <button onclick="closeErrorModal()" class="mt-4 bg-red-500 text-white px-4 py-2 rounded">Close</button>
-        </div>
+
+    <!-- Max Num Saved Files -->
+    <div class="flex items-center justify-between mt-4">
+        <label class="block">Max Num Saved Files</label>
+        <button class="text-blue-500" onclick="openModal('help-max-files')">ℹ️</button>
     </div>
-    <script>
-        function closeStartupErrorModal() {
-            document.getElementById("startup-error-modal").classList.add("hidden");
-        }
-    </script>
+    <input type="number" id="max_num_saved_files" class="w-full p-2 border rounded"
+           value="{{ config['max_num_saved_files'] }}">
+
+    <!-- Background Color Picker -->
+    <div class="flex items-center justify-between mt-4">
+        <label class="block">Background Color</label>
+        <button class="text-blue-500" onclick="openModal('help-bg-color')">ℹ️</button>
+    </div>
+    <input type="color" id="background_color" class="w-full p-2 border rounded"
+           value="{{ config['background_color'] }}">
+
+    <!-- Active Theme -->
+    <div class="flex items-center justify-between mt-4">
+        <label class="block">Active Theme</label>
+        <button class="text-blue-500" onclick="openModal('help-theme')">ℹ️</button>
+    </div>
+    <select id="active_theme" class="w-full p-2 border rounded">
+        {% for theme_name in all_theme_names %}
+            <option value="{{ theme_name }}"
+                    {% if current_theme_display_name == theme_name %}selected{% endif %}>
+                {{ theme_name }}
+            </option>
+        {% endfor %}
+    </select>
+    <!-- Active Style -->
+    <div class="flex items-center justify-between mt-4">
+        <label class="block">Active Style</label>
+        <button class="text-blue-500" onclick="openModal('help-style')">ℹ️</button>
+    </div>
+    <select id="active_style" class="w-full p-2 border rounded">
+        {% for style_name in current_styles %}
+            <option value="{{ style_name }}" {% if config['active_style'] == style_name %}selected{% endif %}>
+                {{ style_name }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <!-- Action Buttons -->
+    <div class="mt-6 flex justify-between">
+        <button id="revertBtn" class="bg-gray-500 text-white px-4 py-2 rounded">Revert</button>
+        <button id="updateBtn" class="bg-blue-500 text-white px-4 py-2 rounded">Update</button>
+    </div>
+</div>
+
+<!-- Help Modals -->
+<div id="modal-container" class="fixed inset-0 flex items-center justify-center hidden bg-black bg-opacity-50">
+    <div id="modal-content" class="bg-white p-6 rounded-lg shadow-md w-80">
+        <h2 class="text-xl font-bold mb-4" id="modal-title"></h2>
+        <p id="modal-text"></p>
+        <button onclick="closeModal()" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded">Close</button>
+    </div>
+</div>
+<!-- Error Modal -->
+<div id="error-modal" class="fixed inset-0 flex items-center justify-center hidden bg-black bg-opacity-50">
+    <div class="bg-white p-6 rounded-lg shadow-md w-80">
+        <h2 class="text-xl font-bold text-red-600">Error</h2>
+        <p id="error-message" class="mt-2"></p>
+        <button onclick="closeErrorModal()" class="mt-4 bg-red-500 text-white px-4 py-2 rounded">Close</button>
+    </div>
+</div>
+<script>
+    function closeStartupErrorModal() {
+        document.getElementById("startup-error-modal").classList.add("hidden");
+    }
+</script>
 </body>
 </html>

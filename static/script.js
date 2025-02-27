@@ -66,7 +66,6 @@ document.getElementById("active_theme").addEventListener("change", function () {
         .then(response => response.json())
         .then(styles => {
             stylesDropdown.innerHTML = "";  // Clear current options
-            // for (const [style] of Object.entries(styles)) {
             for (const style of styles) {
                 let option = document.createElement("option");
                 option.value = style;
