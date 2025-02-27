@@ -50,7 +50,9 @@ def update_config():
         new_config["active_theme"] = data_manager.get_themes()[theme_display_name]["disk_name"]
         del new_config['theme_display_name']
 
-        data_manager.config_data = new_config
+        merged_dict = data_manager.config_data | new_config  # new_config values take precedence
+
+        data_manager.config_data = merged_dict
         success = data_manager.save_configuration()
 
         if not success:

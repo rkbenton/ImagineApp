@@ -52,9 +52,10 @@
         </div>
     </div>
 
+
     <!-- Local Files Only Toggle -->
     <div class="flex items-center justify-between mt-4">
-        <span>Local Files Only</span>
+        <span>Slideshow - Local Files Only</span>
         <div class="flex items-center">
             <label class="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" id="local_files_only" class="sr-only peer"
@@ -64,6 +65,25 @@
             <button class="text-blue-500 ml-2" onclick="openModal('help-local-files')">ℹ️</button>
         </div>
     </div>
+
+
+    <!-- Min Rating -->
+    <div class="flex items-center justify-between mt-4">
+        <span>Minimum Rating for Slideshow</span>
+        <div class="flex items-center">
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="number"
+                       id="minimum_rating_filter"
+                       name="minimum_rating_filter"
+                       min="0"
+                       max="5"
+                       step="1"
+                       value="{{ config.minimum_rating_filter | round | int }}">
+            </label>
+            <button class="text-blue-500 ml-2" onclick="openModal('help-min-rating')">ℹ️</button>
+        </div>
+    </div>
+
 
     <!-- Max Num Saved Files -->
     <div class="flex items-center justify-between mt-4">
