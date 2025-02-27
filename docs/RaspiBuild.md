@@ -141,7 +141,7 @@ WantedBy=multi-user.target
 ```
 
 Enable and start the service:
-```
+```bash
 sudo systemctl enable imagineapp
 sudo systemctl start imagineapp
 ```
