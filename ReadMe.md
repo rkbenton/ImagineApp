@@ -14,13 +14,16 @@ level in the file hierarchy.
 The sample screenshot to the right is detailing a configuration file that looks like this:
 ```json
 {
-    "display_duration": "02:30:00",
-    "full_screen": true,
-    "local_files_only": false,
-    "max_num_saved_files": 250,
-    "background_color": "#0000aa",
-    "active_style": "whimsical",
-    "active_theme": "christmas.yaml"
+  "display_duration": "00:02:00",
+  "full_screen": false,
+  "local_files_only": true,
+  "minimum_rating_filter": 1.0,
+  "max_num_saved_files": 444,
+  "background_color": "#000000",
+  "active_theme": "creative.yaml",
+  "active_style": "random",
+  "themes_directory": "themes",
+  "save_directory_path": "image_out"
 }
 ```
 Nate that if you modify the file by hand, you can reload it in the ImagineApp UI by clicking
