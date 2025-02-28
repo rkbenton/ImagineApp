@@ -73,7 +73,9 @@ class DataManager:
             with open(self.config_path, "r") as file:
                 return json.load(file)
         except json.JSONDecodeError as e:
-            raise ValueError(f"Invalid JSON format in {self.config_path}: {e}")
+            msg = f"Invalid JSON format in {self.config_path}: {e}"
+            print(msg)
+            raise ValueError(msg)
 
     def get_config(self) -> Dict[str, Any]:
         """Return the current configuration, along with any startup errors."""
