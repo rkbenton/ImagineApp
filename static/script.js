@@ -39,7 +39,7 @@ document.getElementById("updateBtn").addEventListener("click", function () {
         background_color: document.getElementById("background_color").value,
         theme_display_name: themeDropdown.value, // This is the display_name
         active_style: document.getElementById("active_style").value,
-        minimum_rating_filter: document.getElementById("minimum_rating_filter").value
+        minimum_rating_filter: parseFloat( document.getElementById("minimum_rating_filter").value)
     };
 
     console.log("about to call POST /update_config with:");
