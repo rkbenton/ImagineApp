@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Files</title>
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file -->
+</head>
+<body>
+    <h1>Manage Files</h1>
+
+    <!-- Directory Selector -->
+    <label for="directory">Select Directory:</label>
+    <select id="directory" hx-get="/update-directory" hx-target="#file-actions">
+        <option value="image_out">image_out</option>
+        <option value="christmas">christmas</option>
+        <option value="creative">creative</option>
+        <option value="futuristic">futuristic</option>
+        <option value="halloween">halloween</option>
+        <option value="independence_day">independence_day</option>
+    </select>
+
+    <!-- File Statistics -->
+    <div id="file-stats" hx-get="/file-stats" hx-trigger="load">
+        <p>Total Files: Loading...</p>
+        <p>Disk Space Used: Loading...</p>
+    </div>
+
+    <!-- File Actions -->
+    <div id="file-actions">
+        <div id="global-actions">
+            <button hx-post="/upload-to-s3">Push new files to S3 & Sync Ratings</button>
+
+            <label>Copy files from S3 with rating ≥</label>
+            <select id="rating">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+            <input type="number" id="max-files" placeholder="Max Files" value="100">
+            <button hx-post="/copy-from-s3" hx-include="#rating, #max-files">Copy from S3</button>
+
+            <label>Remove files with rating ≤</label>
+            <select id="remove-rating">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+            <button hx-post="/remove-files" hx-include="#remove-rating">Remove Files</button>
+        </div>
+
+        <div id="directory-actions" hx-get="/directory-actions" hx-trigger="load">
+            <label>Replace</label>
+            <input type="number" id="replace-percent" placeholder="% to replace" value="50">
+            <button hx-post="/replace-files" hx-include="#replace-percent">Replace with Fresh S3 Images</button>
+
+            <label>Remove</label>
+            <input type="number" id="remove-percent" placeholder="% to remove" value="50">
+            <button hx-post="/remove-percentage" hx-include="#remove-percent">Remove Files</button>
+        </div>
+    </div>
+</body>
+</html>

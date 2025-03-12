@@ -7,6 +7,9 @@ from DataManager import DataManager
 from flask import send_from_directory
 import os
 
+from FileOps import FileOps
+import time
+
 # Configure logging
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -14,9 +17,11 @@ logger.info(f'-- Started "{__name__}" --')
 
 app = Flask(__name__)
 data_manager = DataManager()
+file_ops = FileOps(data_manager)
 
 if __name__ == "__app__":
     app.run(host='0.0.0.0', port=5000, ssl_context='adhoc')
+
 
 @app.route("/")
 def index():
@@ -72,8 +77,22 @@ def get_styles():
     return jsonify(style_names)
 
 
+@app.route("/file-management")
+def get_file_management():
+    return render_template("file_management.html")
+
+
 @app.route('/favicon.ico')
 def favicon():
     print("Sending images/favicon.ico")
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'images/favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+@app.route('/total_files', methods=["GET"])
+def total_files():
+    file_count, total_size, max_num_saved_files = file_ops.count_local_files()
+    time.sleep(3.0)
+    response = f"""
+    <b>File count:</b> {file_count}, <b>Total Size:</b> {total_size}, <b>Max number of saved files:</b> {max_num_saved_files}
+"""
+    return response
