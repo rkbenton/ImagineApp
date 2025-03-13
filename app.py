@@ -1,9 +1,11 @@
 import logging
 import os
+import threading
 import time
 from typing import List
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, jsonify, render_template_string, Response
+from flask import render_template, request
 from flask import send_from_directory
 
 from ImImConfigManager import ImImConfigManager
@@ -17,9 +19,21 @@ logger.info(f'-- Started "{__name__}" --')
 app = Flask(__name__)
 data_manager = ImImConfigManager()
 local_file_utils = LocalFileUtils(data_manager)
+# Global variables to hold job progress and status.
+job_progress = 0
+job_running = False
 
 if __name__ == "__app__":
     app.run(host='0.0.0.0', port=5000, ssl_context='adhoc')
+
+
+def simulate_job():
+    global job_progress, job_running
+    # Simulate progress in 10 steps over 5 seconds (0.5 sec per step)
+    for i in range(1, 11):
+        time.sleep(0.5)
+        job_progress = i * 10  # Increase progress by 10% each step.
+    job_running = False
 
 
 @app.route("/")
@@ -162,17 +176,76 @@ def directory_info():
             theme_data = themes[display_name]
             dir_name = theme_data["disk_name"].replace(".yaml", "")
             file_count, total_size, num_unrated_images, _ = local_file_utils.count_local_files(dir_name)
-            html_content = f"""
-            <h5>Overall stats for {display_name} ({dir_name}):</h5>
-            <p>
-            <ul>
-                <li><b>File count:</b> {file_count}</li>
-                <li><b>Num unrated files:</b> {num_unrated_images}</li>
-                <li><b>Total size:</b> {LocalFileUtils.sizeof_fmt(total_size)}</li>
-            <ul>
-"""
+            total_file_size_human_readable = LocalFileUtils.sizeof_fmt(total_size)
+
+            html_content = render_template("file_panel.html",
+                                           display_name=display_name,
+                                           dir_name=dir_name,
+                                           file_count=file_count,
+                                           total_file_size_human_readable=total_file_size_human_readable,
+                                           num_unrated_images=num_unrated_images)
+            # html_content = f"""
+            # <h5>Overall stats for {display_name} ({dir_name}):</h5>
+            # <p>
+            # <ul>
+            #     <li><b>File count:</b> {file_count}</li>
+            #     <li><b>Num unrated files:</b> {num_unrated_images}</li>
+            #     <li><b>Total size:</b> {LocalFileUtils.sizeof_fmt(total_size)}</li>
+            # <ul>
+        # """
         else:
-            html_content = f"""
-            <h5>Directory <i>{display_name}<i> unknown</h5>
-"""
+            html_content = f"<h5>Directory <i>{display_name}<i> unknown</h5>"
+
     return html_content
+
+
+# Endpoint to return the modal HTML
+@app.route('/start-job-modal')
+def start_job_modal():
+    modal = render_template("file_copy_modal_dlg.html")
+    return modal
+
+
+@app.route('/start-job', methods=['POST'])
+def start_job():
+    print("top of /start-job")
+    global job_progress, job_running
+    job_progress = 0
+    job_running = True
+    # Start the simulated job in a separate thread
+    threading.Thread(target=simulate_job).start()
+    return render_template("file_copy_modal_dlg.html")
+
+
+@app.route('/job-progress')
+def job_progress_endpoint():
+    print("top of /job-progress")
+    global job_progress, job_running
+    # Decide what status message to show
+    if job_progress >= 100:
+        status_text = "Job complete!"
+    else:
+        status_text = "Copying files..."
+
+    # Return updated HTML for the progress container.
+    return render_template_string(f"""
+    <div id="job-status-container" hx-get="/job-progress" hx-trigger="every 500ms" hx-swap="innerHTML">
+      <div class="progress mb-3">
+        <div id="progress-bar" class="progress-bar" role="progressbar" style="width: {job_progress}%;"
+             aria-valuenow="{job_progress}" aria-valuemin="0" aria-valuemax="100">{job_progress}%</div>
+      </div>
+      <div id="job-status">{status_text}</div>
+    </div>
+    """)
+
+
+# Stub endpoint to simulate cancellation (for now, simply return a modified button)
+@app.route('/cancel-job', methods=['POST'])
+def cancel_job():
+    # Here we would implement the cancellation logic
+    # For now, just change the Cancel button to Done
+    # new_button = '<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Done</button>'
+    # return new_button
+
+    # Insert your cancellation logic here.
+    return Response('', status=204)

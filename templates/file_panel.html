@@ -1,2 +1,21 @@
-            <b>File count:</b> {{ file_count }}, <b>Total Size:</b> {{ total_size }}, <b>Max number of saved files:</b>
-            {{ max_num_saved_files }}
+<h5>Overall stats for {{ display_name }} ({{ dir_name }}):</h5>
+<p>
+<ul>
+    <li><b>File count:</b> {{ file_count }}</li>
+    <li><b>Num unrated files:</b> {{ num_unrated_images }}</li>
+    <li><b>Total size:</b> {{ total_file_size_human_readable }}</li>
+</ul>
+<p>
+    Wahoo!
+</p>
+<p>
+<!-- Modal Trigger Button -->
+<button type="button" class="btn btn-primary"
+        hx-get="/start-job-modal"
+        hx-target="body"
+        hx-swap="beforeend">
+  Start File Copy
+</button>
+
+
+</p>
