@@ -1,14 +1,13 @@
 import logging
+import os
+import time
 from typing import List
 
 from flask import Flask, render_template, request, jsonify
-
-from DataManager import DataManager
 from flask import send_from_directory
-import os
 
-from FileOps import FileOps
-import time
+from ImImConfigManager import ImImConfigManager
+from LocalFileUtils import LocalFileUtils
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -16,8 +15,8 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger.info(f'-- Started "{__name__}" --')
 
 app = Flask(__name__)
-data_manager = DataManager()
-file_ops = FileOps(data_manager)
+data_manager = ImImConfigManager()
+local_file_utils = LocalFileUtils(data_manager)
 
 if __name__ == "__app__":
     app.run(host='0.0.0.0', port=5000, ssl_context='adhoc')
@@ -88,11 +87,92 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'images/favicon.ico', mimetype='image/vnd.microsoft.icon')
 
+
 @app.route('/total_files', methods=["GET"])
 def total_files():
-    file_count, total_size, max_num_saved_files = file_ops.count_local_files()
+    file_count, total_size, num_unrated_images, max_num_saved_files = local_file_utils.count_local_files()
     time.sleep(3.0)
     response = f"""
-    <b>File count:</b> {file_count}, <b>Total Size:</b> {total_size}, <b>Max number of saved files:</b> {max_num_saved_files}
+    <b>File count:</b> {file_count}, <b>Total Size:</b> 
+{total_size}, <b>Num unrated files:</b> {num_unrated_images}, <b>Max number of saved files:</b> {max_num_saved_files}
 """
     return response
+
+
+@app.route('/theme_list', methods=["GET"])
+def theme_list():
+    list_items: list[str] = []
+    themes = data_manager.get_themes()
+
+    list_item = render_template("theme_list_item.html", dir_display_name="Totals")
+    list_items.append(list_item)
+    for dir_display_name in themes.keys():
+        list_item = render_template("theme_list_item.html", dir_display_name=dir_display_name)
+        list_items.append(list_item)
+    #
+    #
+    # # ---
+    # # get image_out data manually
+    # file_count, total_size, max_files = file_ops.count_local_files()
+    # dir_info = f"""
+    #         Overall stats:<p>
+    #         <b>File count:</b> {file_count}, <b>Total Size:</b> {total_size}, <b>Max number of saved files:</b> {max_files}
+    #     """
+    # list_item = render_template("theme_list_item.html", dir_display_name=dir_display_name, dir_info=dir_info)
+    # list_items.append(list_item)
+    #
+    # # go through all the themes
+    # for dir_display_name in themes.keys():
+    #     them_data = themes[dir_display_name]
+    #     dir_name = them_data["disk_name"].replace(".yaml","")
+    #     file_count, total_size, max_files = file_ops.count_local_files(dir_name)
+    #     dir_info = f"""
+    #     <b>File count:</b> {file_count}, <b>Total Size:</b> {total_size}, <b>Max number of saved files:</b> {max_files}
+    # """
+    #     list_item=render_template("theme_list_item.html",
+    #                               dir_display_name=dir_display_name,
+    #                               dir_info=dir_info)
+    #     list_items.append(list_item)
+
+    delimiter = "\n"
+    result_string = delimiter.join(list_items)
+
+    return result_string
+
+
+@app.route('/directory-info')
+def directory_info():
+    display_name = request.args.get('dir', 'Unknown Directory')
+    if display_name == 'Totals':
+        # get image_out data manually
+        file_count, total_size, num_unrated_images, max_files = local_file_utils.count_local_files()
+        html_content = f"""
+                <h5>Overall stats for image_out:</h5>
+                <p>
+                <ul>
+                    <li><b>File count:</b> {file_count}</li>
+                    <li><b>Num unrated files:</b> {num_unrated_images}</li>
+                    <li><b>Total size:</b> {LocalFileUtils.sizeof_fmt(total_size)}</li>
+                    <li><b>Max number of saved files:</b> {max_files}</li>
+                <ul>
+"""
+    else:
+        themes = data_manager.get_themes()
+        if display_name in themes.keys():
+            theme_data = themes[display_name]
+            dir_name = theme_data["disk_name"].replace(".yaml", "")
+            file_count, total_size, num_unrated_images, _ = local_file_utils.count_local_files(dir_name)
+            html_content = f"""
+            <h5>Overall stats for {display_name} ({dir_name}):</h5>
+            <p>
+            <ul>
+                <li><b>File count:</b> {file_count}</li>
+                <li><b>Num unrated files:</b> {num_unrated_images}</li>
+                <li><b>Total size:</b> {LocalFileUtils.sizeof_fmt(total_size)}</li>
+            <ul>
+"""
+        else:
+            html_content = f"""
+            <h5>Directory <i>{display_name}<i> unknown</h5>
+"""
+    return html_content

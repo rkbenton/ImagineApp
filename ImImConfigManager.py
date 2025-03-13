@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 logger = logging.getLogger(__name__)
 
 
-class DataManager:
+class ImImConfigManager:
     _instance = None
     _lock = threading.Lock()
 
@@ -18,7 +18,7 @@ class DataManager:
         """Singleton pattern to ensure only one instance."""
         with cls._lock:
             if cls._instance is None:
-                cls._instance = super(DataManager, cls).__new__(cls)
+                cls._instance = super(ImImConfigManager, cls).__new__(cls)
                 cls._instance._initialized = False
         return cls._instance
 
