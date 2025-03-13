@@ -1,41 +1,55 @@
 <!-- Modal Template (to be returned by /start-job-modal) -->
 <div class="modal fade" id="jobModal" tabindex="-1" aria-labelledby="jobModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="jobModalLabel">File Copy Process</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <!-- Progress Bar -->
-        <div class="progress mb-3">
-          <div class="progress-bar" role="progressbar" style="width: 0%;"
-               aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-            0%
-          </div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="jobModalLabel">File Copy Process</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Progress Bar -->
+                <div id="job-status-container">
+                    <div class="progress mb-3">
+                        <div class="progress-bar" role="progressbar" style="width: 0%;"
+                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                            0%
+                        </div>
+                    </div>
+                </div>
+                <!-- Text Region for Job Status -->
+                <div id="job-status">
+                    Preparing to copy files...
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancel-btn" type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal"
+                        hx-post="/cancel-job"
+                        hx-trigger="click">
+                    Cancel
+                </button>
+            </div>
         </div>
-        <!-- Text Region for Job Status -->
-        <div id="job-status">
-          Preparing to copy files...
-        </div>
-      </div>
-      <div class="modal-footer">
-<button id="cancel-btn" type="button" class="btn btn-secondary"
-        data-bs-dismiss="modal"
-        hx-post="/cancel-job"
-        hx-trigger="click">
-  Cancel
-</button>
-      </div>
     </div>
-  </div>
 </div>
 
 <script>
-  // When the modal content is added to the page, show the modal using Bootstrap's JS
-  var modalEl = document.getElementById('jobModal');
-  if(modalEl) {
-    var modal = new bootstrap.Modal(modalEl);
-    modal.show();
-  }
+    // Add an event listener to the modal's shown event
+    var myModalEl = document.getElementById('jobModal');
+    myModalEl.addEventListener('shown.bs.modal', function () {
+        // Use a short delay to ensure the modal is fully rendered
+        setTimeout(function () {
+            // Trigger the HTMX POST request to start the job
+            htmx.ajax("POST", "/start-job", {
+                target: "#job-status-container",
+                swap: "outerHTML"
+            });
+        }, 500); // 500 ms delay; adjust as needed
+    });
+    // When the modal content is added to the page, show the modal using Bootstrap's JS
+    var modalEl = document.getElementById('jobModal');
+    if (modalEl) {
+        var modal = new bootstrap.Modal(modalEl);
+        modal.show();
+    }
 </script>

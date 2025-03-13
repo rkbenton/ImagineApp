@@ -123,30 +123,6 @@ def theme_list():
     for dir_display_name in themes.keys():
         list_item = render_template("theme_list_item.html", dir_display_name=dir_display_name)
         list_items.append(list_item)
-    #
-    #
-    # # ---
-    # # get image_out data manually
-    # file_count, total_size, max_files = file_ops.count_local_files()
-    # dir_info = f"""
-    #         Overall stats:<p>
-    #         <b>File count:</b> {file_count}, <b>Total Size:</b> {total_size}, <b>Max number of saved files:</b> {max_files}
-    #     """
-    # list_item = render_template("theme_list_item.html", dir_display_name=dir_display_name, dir_info=dir_info)
-    # list_items.append(list_item)
-    #
-    # # go through all the themes
-    # for dir_display_name in themes.keys():
-    #     them_data = themes[dir_display_name]
-    #     dir_name = them_data["disk_name"].replace(".yaml","")
-    #     file_count, total_size, max_files = file_ops.count_local_files(dir_name)
-    #     dir_info = f"""
-    #     <b>File count:</b> {file_count}, <b>Total Size:</b> {total_size}, <b>Max number of saved files:</b> {max_files}
-    # """
-    #     list_item=render_template("theme_list_item.html",
-    #                               dir_display_name=dir_display_name,
-    #                               dir_info=dir_info)
-    #     list_items.append(list_item)
 
     delimiter = "\n"
     result_string = delimiter.join(list_items)
@@ -184,15 +160,6 @@ def directory_info():
                                            file_count=file_count,
                                            total_file_size_human_readable=total_file_size_human_readable,
                                            num_unrated_images=num_unrated_images)
-            # html_content = f"""
-            # <h5>Overall stats for {display_name} ({dir_name}):</h5>
-            # <p>
-            # <ul>
-            #     <li><b>File count:</b> {file_count}</li>
-            #     <li><b>Num unrated files:</b> {num_unrated_images}</li>
-            #     <li><b>Total size:</b> {LocalFileUtils.sizeof_fmt(total_size)}</li>
-            # <ul>
-        # """
         else:
             html_content = f"<h5>Directory <i>{display_name}<i> unknown</h5>"
 
@@ -202,6 +169,7 @@ def directory_info():
 # Endpoint to return the modal HTML
 @app.route('/start-job-modal')
 def start_job_modal():
+    print("top of /start-job-modal")
     modal = render_template("file_copy_modal_dlg.html")
     return modal
 
@@ -214,7 +182,16 @@ def start_job():
     job_running = True
     # Start the simulated job in a separate thread
     threading.Thread(target=simulate_job).start()
-    return render_template("file_copy_modal_dlg.html")
+    # Return initial HTML for the progress container with polling enabled.
+    return render_template_string("""
+    <div id="job-status-container" hx-get="/job-progress" hx-trigger="every 1500ms" hx-swap="outerHTML">
+      <div class="progress mb-3">
+        <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%;" 
+             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+      </div>
+      <div id="job-status">Copying files...</div>
+    </div>
+    """)
 
 
 @app.route('/job-progress')
@@ -229,7 +206,7 @@ def job_progress_endpoint():
 
     # Return updated HTML for the progress container.
     return render_template_string(f"""
-    <div id="job-status-container" hx-get="/job-progress" hx-trigger="every 500ms" hx-swap="innerHTML">
+    <div id="job-status-container" hx-get="/job-progress" hx-trigger="every 1500ms" hx-swap="innerHTML">
       <div class="progress mb-3">
         <div id="progress-bar" class="progress-bar" role="progressbar" style="width: {job_progress}%;"
              aria-valuenow="{job_progress}" aria-valuemin="0" aria-valuemax="100">{job_progress}%</div>
