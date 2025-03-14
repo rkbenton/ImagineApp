@@ -29,3 +29,11 @@ class LongTaskABC(ABC):
     @abstractmethod
     def is_working(self) -> bool:
         pass
+
+    @abstractmethod
+    def failed(self) -> bool:
+        pass
+
+    @abstractmethod
+    def get_failure(self) -> Exception:
+        pass
