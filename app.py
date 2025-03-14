@@ -12,8 +12,19 @@ from ImImConfigManager import ImImConfigManager
 from LocalFileUtils import LocalFileUtils
 
 # Configure logging
+logging.basicConfig(
+    filename="logfile.log", encoding='utf-8',
+    level=20,        # 20 INFO, 10 DEBUG
+    filemode='w', # 'a' == append, 'w' over-write
+    format="%(asctime)s:%(levelname)s:%(message)s"
+)
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
+console_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+logger.addHandler(console_handler)
+
 logger.info(f'-- Started "{__name__}" --')
 
 app = Flask(__name__)
