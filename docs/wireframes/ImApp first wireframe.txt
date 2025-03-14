@@ -1,0 +1,45 @@
+                                         ┌───────────────────────────────────────────┐                                               
+                                         │  Imagine App | {wifi network name}        │                                               
+                                         │ ───────────────────────────────────────── │                                               
+                                         │                                           │                                               
+                                         │                                           │                                               
+                                         │  Display Duration:                        │                                               
+                                         │                                           │                                               
+                                         │                  ┌────┐┌────┐┌────┐ ┌──┐  │                                               
+                                         │       (HH:MM:SS):│    ││    ││    │ │i │  │                                               
+                                         │                  └────┘└────┘└────┘ └──┘  │                                               
+                                         │                                ┌──┐ ┌──┐  │                                               
+                                         │  Full Screen:                  │ █│ │i │  │                                               
+                                         │                                └──┘ └──┘  │                                               
+                                         │                                ┌──┐ ┌──┐  │                                               
+                                         │  Local Files Only:             │ █│ │i │  │                                               
+                                         │                                └──┘ └──┘  │                                               
+                                         │                              ┌────┐ ┌──┐  │                                               
+                                         │  Max Num Saved Files:        │    │ │i │  │                                               
+                                         │                              └────┘ └──┘  │                                               
+                                         │                    ┌──────────────┐ ┌──┐  │                                               
+                                         │  Background Color: │██████████████│ │i │  │                                               
+                                         │                    └──────────────┘ └──┘  │                                               
+                                         │                                           │                                               
+▼                                        │  Active Theme:                            │                                               
+                                         │  ┌────────────────────────────────┐ ┌──┐  │                                               
+                                         │  │{current theme name}            │ │i │  │                                               
+                                         │  └────────────────────────────────┘ └──┘  │                                               
+                                         │                                           │                                               
+                                         │  Active Style:                            │                                               
+                                         │  ┌────────────────────────────────┐ ┌──┐  │                                               
+                                         │  │{active style}                  │ │i │  │                                               
+                                         │  └────────────────────────────────┘ └──┘  │                                               
+                                         │               ┌────────┐ ┌────────┐ ┌──┐  │                                               
+                                         │               │ Cancel │ │ Update │ │i │  │                                               
+                                         │               └────────┘ └────────┘ └──┘  │                                               
+                                         │                                           │                                               
+                                         └───────────────────────────────────────────┘                                               
+                                                                                                                                     
+                                         display_duration → Text input with format hints (HH:MM:SS).                                 
+                                         full_screen, local_files_only → Toggle switches.                                            
+                                         max_num_saved_files → Numeric input with min/max limits.                                    
+                                         save_directory_path, themes_directory → Auto-filled dropdowns listing available directories.
+                                         background_color → RGB color picker.                                                        
+                                         active_theme → Dropdown with theme display_name from YAML.                                  
+                                         active_style → Dropdown auto-populated based on selected theme.                             
