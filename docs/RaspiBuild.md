@@ -173,6 +173,8 @@ Useful commands for managing the service:
 - View logs: `journalctl -u imagineapp.service`
 - View only last 10 mins of log
 
+
+
  ```
 journalctl -u imagineapp.service --no-pager --since "10 minutes ago"
 journalctl -u imagineapp.service --no-pager --since "5 minutes ago"

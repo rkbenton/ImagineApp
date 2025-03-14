@@ -8,6 +8,7 @@ from flask import Flask, jsonify, render_template_string, Response
 from flask import render_template, request
 from flask import send_from_directory
 
+import imim_utils
 from ImImConfigManager import ImImConfigManager
 from LocalFileUtils import LocalFileUtils
 
@@ -109,7 +110,7 @@ def get_file_management():
 
 @app.route('/favicon.ico')
 def favicon():
-    print("Sending images/favicon.ico")
+    logger.info("Sending images/favicon.ico")
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'images/favicon.ico', mimetype='image/vnd.microsoft.icon')
 
@@ -164,7 +165,7 @@ def directory_info():
             theme_data = themes[display_name]
             dir_name = theme_data["disk_name"].replace(".yaml", "")
             file_count, total_size, num_unrated_images, _ = local_file_utils.count_local_files(dir_name)
-            total_file_size_human_readable = LocalFileUtils.sizeof_fmt(total_size)
+            total_file_size_human_readable = imim_utils.sizeof_fmt(total_size)
 
             html_content = render_template("file_panel.html",
                                            display_name=display_name,
@@ -181,14 +182,14 @@ def directory_info():
 # Endpoint to return the modal HTML
 @app.route('/start-job-modal')
 def start_job_modal():
-    print("top of /start-job-modal")
+    logger.info("top of /start-job-modal")
     modal = render_template("file_copy_modal_dlg.html")
     return modal
 
 
 @app.route('/start-job', methods=['POST'])
 def start_job():
-    print("top of /start-job")
+    logger.info("top of /start-job")
     global job_progress, job_running, job_complete
     job_progress = 0
     job_running = True
@@ -209,15 +210,25 @@ def start_job():
 
 @app.route('/job-progress')
 def job_progress_endpoint():
-    print("top of /job-progress")
+    logger.info("top of /job-progress")
     global job_progress, job_running, job_complete
+    cancel_button_html: str = ""
     # Decide what status message to show
     if job_progress >= 100:
-        print("job-progress is 100%")
+        logger.info("job-progress is 100%")
         job_running = False
         job_complete = True
         status_text = "Job complete!"
         polling: str = ''
+        # Out-of-band update for the cancel button to change it to a Done button.
+        # HTMX will automatically update the element with id="cancel-btn" on the
+        # page with the out‐of‐band content.
+        cancel_button_html = """
+        <button id="cancel-btn" type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                hx-post="/cancel-job" hx-trigger="click" hx-swap-oob="outerHTML">
+          Done
+        </button>
+        """
     elif job_complete:
         status_text = "Job cancelled!"
         polling: str = ''
@@ -235,6 +246,7 @@ def job_progress_endpoint():
       </div>
       <div id="job-status">{status_text}</div>
     </div>
+    {cancel_button_html}
     """)
 
 
