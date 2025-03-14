@@ -5,9 +5,9 @@ import re
 from datetime import datetime
 from typing import List
 
-from imim_utils import print_progress_bar
-
+import imim_utils
 from S3Manager import S3Manager
+from imim_utils import print_progress_bar
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +78,7 @@ def copy_s3_files_to_local(copy_s3_to_local: list,
         filtered_list = copy_s3_to_local
 
     if num_files == 0:
-        print("No files need to be copied from S3")
+        logger.info("No files need to be copied from S3")
         return
 
     num_copied = 0
@@ -90,7 +90,7 @@ def copy_s3_files_to_local(copy_s3_to_local: list,
     if randomize:
         random.shuffle(filtered_list)
 
-    print(f"Copying {max_to_copy} files down from S3")
+    logger.info(f"Copying {max_to_copy} files down from S3")
     print_progress_bar(0, max_to_copy, prefix='Progress:', suffix='Complete', length=50)
 
     for count, s3_file in enumerate(filtered_list):
@@ -114,7 +114,7 @@ def upload_local_files_to_s3(copy_local_to_s3, s3_manager: S3Manager) -> None:
     num_files = len(copy_local_to_s3)
 
     if num_files > 0:
-        print(f"Copying {num_files} local files up to S3")
+        logger.info(f"Copying {num_files} local files up to S3")
         print_progress_bar(0, num_files, prefix='Progress:', suffix='Complete', length=50)
 
         for count, local_file in enumerate(copy_local_to_s3):
@@ -178,12 +178,13 @@ def synchronize_local_and_s3(s3_files: List[dict],
     # intersection
     set_of_approx_in_both = s3_approx_key_set & local_approx_key_set
 
-    print("Set information:")
-    print(f"    {enforce_str_len('s3_approx_key_set')} contains {len(s3_approx_key_set)} files")
-    print(f"    {enforce_str_len('local_approx_key_set')} contains {len(local_approx_key_set)} files")
-    print(f"    {enforce_str_len('set_of_approx_only_in_s3')} contains {len(set_of_approx_only_in_s3)} files")
-    print(f"    {enforce_str_len('set_of_approx_only_in_local')} contains {len(set_of_approx_only_in_local)} files")
-    print(f"    {enforce_str_len('set_of_approx_in_both')} contains {len(set_of_approx_in_both)} files")
+    logger.info("Set information:")
+    logger.info(f"    {enforce_str_len('s3_approx_key_set')} contains {len(s3_approx_key_set)} files")
+    logger.info(f"    {enforce_str_len('local_approx_key_set')} contains {len(local_approx_key_set)} files")
+    logger.info(f"    {enforce_str_len('set_of_approx_only_in_s3')} contains {len(set_of_approx_only_in_s3)} files")
+    logger.info(
+        f"    {enforce_str_len('set_of_approx_only_in_local')} contains {len(set_of_approx_only_in_local)} files")
+    logger.info(f"    {enforce_str_len('set_of_approx_in_both')} contains {len(set_of_approx_in_both)} files")
 
     # Copy files up and copy files down
     copy_local_to_s3 = []  # use set_of_approx_only_in_local
@@ -225,40 +226,19 @@ def synchronize_local_and_s3(s3_files: List[dict],
         if match:
             rename_locally.append((local_item, s3_item))
             continue
-        print(f"!!s3 and local filenames don't match:\n\t{local_item}\n\t{s3_item}")
+        logger.info(f"!!s3 and local filenames don't match:\n\t{local_item}\n\t{s3_item}")
     if len(rename_in_s3) > 0:
-        print(f"\n-----\nthere are {len(rename_in_s3)} files to rename in S3:")
+        logger.info(f"\n-----\nthere are {len(rename_in_s3)} files to rename in S3:")
         for item in rename_in_s3:
-            print(f"renaming S3 file '{item[1]['name']}' to local file's name, '{item[0]['name']}'")
+            logger.info(f"renaming S3 file '{item[1]['name']}' to local file's name, '{item[0]['name']}'")
             s3_manager.rename_s3_file(item[1]['name'], item[0]['name'])
     if len(rename_locally) > 0:
-        print(f"\n-----\nthere are {len(rename_locally)} files to rename in S3:")
+        logger.info(f"\n-----\nthere are {len(rename_locally)} files to rename in S3:")
         for item in rename_locally:
-            print(f"\n\trenaming local: {item[0]['name']}\n\t  to s3's filename: {item[1]['name']}")
+            logger.info(f"\n\trenaming local: {item[0]['name']}\n\t  to s3's filename: {item[1]['name']}")
             os.rename(f"image_out/{item[0]['name']}", f"image_out/{item[1]['name']}")
 
-    print("done")
-
-
-def print_mismatch_results(mismatch_details):
-    print("\nFiles with naming mismatches (potential metadata differences):")
-    for detail in mismatch_details:
-        print(f"Approximate match: {detail['approximate_match']}")
-        print(f"     S3 name: {detail['s3_name']}")
-        print(f"  Local name: {detail['local_name']}")
-        print()
-
-
-def print_results(files_in_both, files_only_local, files_only_s3, match_mode):
-    print(f"\nResults for {match_mode} matching:")
-    print(f"Files in both: {len(files_in_both)}")
-    print("  -", "\n  - ".join(files_in_both))
-
-    print(f"\nFiles only local: {len(files_only_local)}")
-    print("  -", "\n  - ".join(files_only_local))
-
-    print(f"\nFiles only in S3: {len(files_only_s3)}")
-    print("  -", "\n  - ".join(files_only_s3))
+    logger.info("done")
 
 
 def cleanse_s3_dupes(s3_files, s3: S3Manager) -> bool:
@@ -285,51 +265,48 @@ def cleanse_s3_dupes(s3_files, s3: S3Manager) -> bool:
             akey_to_file_list[akey] = [item]
 
     # for now, we will look for a rating and keep that, deleting the rest
-    rating_pattern = re.compile(r' r\[(\d\.\d)\]')
-
     dupes_deleted = 0
     for akey, the_list in akey_to_file_list.items():
         if len(the_list) < 2:  # the list *should* be only 1 long
             continue
         item_with_rating = None
-        print(f"\nFound dupes for approximate key '{akey}'")
+        logger.info(f"\nFound dupes for approximate key '{akey}'")
         for dupe in the_list:
             this_one = " <-- will delete"
             if None == item_with_rating:
-                match = rating_pattern.search(dupe['name'])
+                match = imim_utils.RATING_PATTERN.search(dupe['name'])
                 if match:
                     item_with_rating = dupe
                     this_one = " <-- has rating; will save"
-            print(f"\t{dupe['name']}{this_one}")
-        print("\tdeletion commencing:")
+            logger.info(f"\t{dupe['name']}{this_one}")
+        logger.info("\tdeletion commencing:")
         if item_with_rating:
             for dupe in the_list:
                 if item_with_rating == dupe:
                     continue
                 s3.delete_file(dupe['name'])
-                print(f"\t\tdeleted: {dupe['name']}")
+                logger.info(f"\t\tdeleted: {dupe['name']}")
                 dupes_deleted += 1
         else:
-            print(f"Not sure what to delete; you should really look into it!")
+            logger.info(f"Not sure what to delete; you should really look into it!")
 
     if dupes_deleted > 0:
-        print(f"We deleted {dupes_deleted} dupes in s3")
+        logger.info(f"We deleted {dupes_deleted} dupes in s3")
         return True
     return False
 
-
-def main():
-    s3_manager = S3Manager()
-
-    s3_files = s3_manager.list_files()
-    any_deleted: bool = cleanse_s3_dupes(s3_files, s3_manager)
-    if any_deleted:
-        s3_files = s3_manager.list_files()
-
-    local_files = list_local_files('image_out')
-
-    synchronize_local_and_s3(s3_files, local_files, s3_manager)
-
-
-if __name__ == "__main__":
-    main()
+# def main():
+#     s3_manager = S3Manager()
+#
+#     s3_files = s3_manager.list_files()
+#     any_deleted: bool = cleanse_s3_dupes(s3_files, s3_manager)
+#     if any_deleted:
+#         s3_files = s3_manager.list_files()
+#
+#     local_files = list_local_files('image_out')
+#
+#     synchronize_local_and_s3(s3_files, local_files, s3_manager)
+#
+#
+# if __name__ == "__main__":
+#     main()
