@@ -22,6 +22,7 @@ local_file_utils = LocalFileUtils(data_manager)
 # Global variables to hold job progress and status.
 job_progress = 0
 job_running = False
+job_complete = False
 
 if __name__ == "__app__":
     app.run(host='0.0.0.0', port=5000, ssl_context='adhoc')
@@ -177,14 +178,15 @@ def start_job_modal():
 @app.route('/start-job', methods=['POST'])
 def start_job():
     print("top of /start-job")
-    global job_progress, job_running
+    global job_progress, job_running, job_complete
     job_progress = 0
     job_running = True
+    job_complete = False
     # Start the simulated job in a separate thread
     threading.Thread(target=simulate_job).start()
     # Return initial HTML for the progress container with polling enabled.
     return render_template_string("""
-    <div id="job-status-container" hx-get="/job-progress" hx-trigger="every 1500ms" hx-swap="outerHTML">
+    <div id="job-status-container" hx-get="/job-progress" hx-trigger="every 600ms" hx-swap="outerHTML">
       <div class="progress mb-3">
         <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%;" 
              aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
@@ -197,16 +199,25 @@ def start_job():
 @app.route('/job-progress')
 def job_progress_endpoint():
     print("top of /job-progress")
-    global job_progress, job_running
+    global job_progress, job_running, job_complete
     # Decide what status message to show
     if job_progress >= 100:
+        print("job-progress is 100%")
+        job_running = False
+        job_complete = True
         status_text = "Job complete!"
+        polling: str = ''
+    elif job_complete:
+        status_text = "Job cancelled!"
+        polling: str = ''
+        job_complete = True
     else:
         status_text = "Copying files..."
+        polling: str = 'hx-get="/job-progress" hx-trigger="every 600ms" hx-swap="outerHTML"'
 
     # Return updated HTML for the progress container.
     return render_template_string(f"""
-    <div id="job-status-container" hx-get="/job-progress" hx-trigger="every 1500ms" hx-swap="innerHTML">
+    <div id="job-status-container" {polling}>
       <div class="progress mb-3">
         <div id="progress-bar" class="progress-bar" role="progressbar" style="width: {job_progress}%;"
              aria-valuenow="{job_progress}" aria-valuemin="0" aria-valuemax="100">{job_progress}%</div>
@@ -223,6 +234,9 @@ def cancel_job():
     # For now, just change the Cancel button to Done
     # new_button = '<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Done</button>'
     # return new_button
-
+    global job_progress, job_running, job_complete
+    job_running = False
+    job_complete = True
+    job_progress = 0
     # Insert your cancellation logic here.
     return Response('', status=204)
