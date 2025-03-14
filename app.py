@@ -15,8 +15,8 @@ from LocalFileUtils import LocalFileUtils
 # Configure logging
 logging.basicConfig(
     filename="logfile.log", encoding='utf-8',
-    level=20,        # 20 INFO, 10 DEBUG
-    filemode='w', # 'a' == append, 'w' over-write
+    level=20,  # 20 INFO, 10 DEBUG
+    filemode='w',  # 'a' == append, 'w' over-write
     format="%(asctime)s:%(levelname)s:%(message)s"
 )
 logger = logging.getLogger(__name__)
@@ -35,13 +35,14 @@ local_file_utils = LocalFileUtils(data_manager)
 job_progress = 0
 job_running = False
 job_complete = False
+job_failure = False
 
 if __name__ == "__app__":
     app.run(host='0.0.0.0', port=5000, ssl_context='adhoc')
 
 
 def simulate_job():
-    global job_progress, job_running
+    global job_progress, job_running, job_failure
     # Simulate progress in 10 steps over 5 seconds (0.5 sec per step)
     for i in range(1, 11):
         time.sleep(0.5)
@@ -190,10 +191,11 @@ def start_job_modal():
 @app.route('/start-job', methods=['POST'])
 def start_job():
     logger.info("top of /start-job")
-    global job_progress, job_running, job_complete
+    global job_progress, job_running, job_complete, job_failure
     job_progress = 0
     job_running = True
     job_complete = False
+    job_failure = False
     # Start the simulated job in a separate thread
     threading.Thread(target=simulate_job).start()
     # Return initial HTML for the progress container with polling enabled.
@@ -211,32 +213,42 @@ def start_job():
 @app.route('/job-progress')
 def job_progress_endpoint():
     logger.info("top of /job-progress")
-    global job_progress, job_running, job_complete
-    cancel_button_html: str = ""
+    global job_progress, job_running, job_complete, job_failure
+    # Out-of-band update for the cancel button to change it to a Done button.
+    # HTMX will automatically update the element with id="cancel-btn" on the
+    # page with the out‐of‐band content. Only used when we want to change the
+    # text of the Cancel button to something else.
+    cancel_button_html: str = ''
+    cancel_button_html_template: str = """
+        <button id="cancel-btn" type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                hx-post="/cancel-job" hx-trigger="click" hx-swap-oob="outerHTML">
+          {button_txt}
+        </button>
+        """
+    polling: str = ""
+    exit_button_html: str = ""
     # Decide what status message to show
     if job_progress >= 100:
         logger.info("job-progress is 100%")
         job_running = False
         job_complete = True
         status_text = "Job complete!"
-        polling: str = ''
-        # Out-of-band update for the cancel button to change it to a Done button.
-        # HTMX will automatically update the element with id="cancel-btn" on the
-        # page with the out‐of‐band content.
-        cancel_button_html = """
-        <button id="cancel-btn" type="button" class="btn btn-secondary" data-bs-dismiss="modal"
-                hx-post="/cancel-job" hx-trigger="click" hx-swap-oob="outerHTML">
-          Done
-        </button>
-        """
+        cancel_button_html = cancel_button_html_template.format(button_txt="Done!")
+    elif job_failure:
+        logger.warning("The job failed.")
+        job_running = False
+        job_complete = True
+        status_text = "An error occurred!"
+        cancel_button_html = cancel_button_html_template.format(button_txt="Wah!")
     elif job_complete:
-        status_text = "Job cancelled!"
+        status_text = "Job cancelled?!"
         polling: str = ''
         job_complete = True
+        cancel_button_html = cancel_button_html_template.format(button_txt="Golly!")
     else:
         status_text = "Copying files..."
         polling: str = 'hx-get="/job-progress" hx-trigger="every 600ms" hx-swap="outerHTML"'
-
+        cancel_button_html = cancel_button_html_template.format(button_txt="Cancel")
     # Return updated HTML for the progress container.
     return render_template_string(f"""
     <div id="job-status-container" {polling}>
