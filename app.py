@@ -9,8 +9,11 @@ from flask import render_template, request
 from flask import send_from_directory
 
 import imim_utils
+from DummyFileCopyTask import DummyFileCopyTask
 from ImImConfigManager import ImImConfigManager
+from JobManager import JobManager
 from LocalFileUtils import LocalFileUtils
+from LongTaskABC import LongTaskABC
 
 # Configure logging
 logging.basicConfig(
@@ -29,13 +32,9 @@ logger.addHandler(console_handler)
 logger.info(f'-- Started "{__name__}" --')
 
 app = Flask(__name__)
+job_manager = JobManager()
 data_manager = ImImConfigManager()
 local_file_utils = LocalFileUtils(data_manager)
-# Global variables to hold job progress and status.
-job_progress = 0
-job_running = False
-job_complete = False
-job_failure = False
 
 if __name__ == "__app__":
     app.run(host='0.0.0.0', port=5000, ssl_context='adhoc')
@@ -191,29 +190,33 @@ def start_job_modal():
 @app.route('/start-job', methods=['POST'])
 def start_job():
     logger.info("top of /start-job")
-    global job_progress, job_running, job_complete, job_failure
-    job_progress = 0
-    job_running = True
-    job_complete = False
-    job_failure = False
+
+    # Create a dummy task and start it.
+    task = DummyFileCopyTask(fail=False)
+    job_id: str = job_manager.start_task(task)
     # Start the simulated job in a separate thread
     threading.Thread(target=simulate_job).start()
+
     # Return initial HTML for the progress container with polling enabled.
     return render_template_string("""
-    <div id="job-status-container" hx-get="/job-progress" hx-trigger="every 600ms" hx-swap="outerHTML">
+    <div id="job-status-container" hx-get="/job-progress?job_id={{job_id}}" hx-trigger="every 600ms" hx-swap="outerHTML">
       <div class="progress mb-3">
         <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%;" 
              aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
       </div>
       <div id="job-status">Copying files...</div>
     </div>
-    """)
+    """, job_id=job_id)
 
 
 @app.route('/job-progress')
 def job_progress_endpoint():
-    logger.info("top of /job-progress")
-    global job_progress, job_running, job_complete, job_failure
+    job_id = request.args.get('job_id')
+    task: LongTaskABC = job_manager.get_task(job_id)
+    if not task:
+        logger.warning(f"Job {job_id} not found by job_manager")
+        return "Invalid job", 404
+
     # Out-of-band update for the cancel button to change it to a Done button.
     # HTMX will automatically update the element with id="cancel-btn" on the
     # page with the out‐of‐band content. Only used when we want to change the
@@ -221,40 +224,35 @@ def job_progress_endpoint():
     cancel_button_html: str = ''
     cancel_button_html_template: str = """
         <button id="cancel-btn" type="button" class="btn btn-secondary" data-bs-dismiss="modal"
-                hx-post="/cancel-job" hx-trigger="click" hx-swap-oob="outerHTML">
+                hx-post="/cancel-job?job_id={job_id}" hx-trigger="click" hx-swap-oob="outerHTML">
           {button_txt}
         </button>
         """
     polling: str = ""
-    exit_button_html: str = ""
+    cur_progress = task.get_progress()
     # Decide what status message to show
-    if job_progress >= 100:
+    if cur_progress >= 100:
         logger.info("job-progress is 100%")
-        job_running = False
-        job_complete = True
         status_text = "Job complete!"
-        cancel_button_html = cancel_button_html_template.format(button_txt="Done!")
-    elif job_failure:
+        cancel_button_html = cancel_button_html_template.format(button_txt="Done!", job_id=job_id)
+    elif task.failed():
         logger.warning("The job failed.")
-        job_running = False
-        job_complete = True
-        status_text = "An error occurred!"
-        cancel_button_html = cancel_button_html_template.format(button_txt="Wah!")
-    elif job_complete:
-        status_text = "Job cancelled?!"
-        polling: str = ''
-        job_complete = True
-        cancel_button_html = cancel_button_html_template.format(button_txt="Golly!")
+        reason: Exception = task.get_failure()
+        status_text = f"An error occurred! {str(reason)}"
+        cancel_button_html = cancel_button_html_template.format(button_txt="Wah!", job_id=job_id)
+    elif task.is_canceled():
+        status_text = "Job cancelled"
+        cancel_button_html = cancel_button_html_template.format(button_txt="Golly!", job_id=job_id)
     else:
-        status_text = "Copying files..."
-        polling: str = 'hx-get="/job-progress" hx-trigger="every 600ms" hx-swap="outerHTML"'
-        cancel_button_html = cancel_button_html_template.format(button_txt="Cancel")
+        status_text = "Working..."
+        polling: str = f'hx-get="/job-progress?job_id={job_id}" hx-trigger="every 600ms" hx-swap="outerHTML"'
+        cancel_button_html = cancel_button_html_template.format(button_txt="Cancel", job_id=job_id)
     # Return updated HTML for the progress container.
     return render_template_string(f"""
     <div id="job-status-container" {polling}>
       <div class="progress mb-3">
-        <div id="progress-bar" class="progress-bar" role="progressbar" style="width: {job_progress}%;"
-             aria-valuenow="{job_progress}" aria-valuemin="0" aria-valuemax="100">{job_progress}%</div>
+        <div id="progress-bar" class="progress-bar" role="progressbar" style="width: {cur_progress}%;"
+             aria-valuenow="{cur_progress}" aria-valuemin="0" aria-valuemax="100">{cur_progress}%</div>
       </div>
       <div id="job-status">{status_text}</div>
     </div>
@@ -269,7 +267,6 @@ def cancel_job():
     # For now, just change the Cancel button to Done
     # new_button = '<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Done</button>'
     # return new_button
-    global job_progress, job_running, job_complete
     job_running = False
     job_complete = True
     job_progress = 0
