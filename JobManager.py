@@ -24,6 +24,8 @@ class JobManager:
         :param job_id: the unique id of the job.
         :return: the task if JobManager is tracking it, or None otherwise.
         """
+        if not(job_id in self.tasks):
+            return None
         task = self.tasks.get(job_id)
         return task
 
