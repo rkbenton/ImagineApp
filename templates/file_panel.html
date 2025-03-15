@@ -1,19 +1,89 @@
+<!-- Dynamic Overall Stats Section -->
 <h5>Overall stats for {{ display_name }} ({{ dir_name }}):</h5>
-<p>
-<ul>
+<ul class="list-unstyled">
     <li><b>File count:</b> {{ file_count }}</li>
     <li><b>Num unrated files:</b> {{ num_unrated_images }}</li>
     <li><b>Total size:</b> {{ total_file_size_human_readable }}</li>
 </ul>
 
+<!-- Copy to S3 Card -->
+<div class="mb-4">
+    <div class="card">
+        <div class="card-header bg-white">
+            <strong>Copy to S3</strong>
+        </div>
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col">
+                    <p class="mb-0">Copy all new and changed files</p>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-primary"
+                            hx-post="/copy-to-s3"
+                            hx-target="#copy-to-s3-response"
+                            hx-swap="innerHTML">
+                        Do Copy
+                    </button>
+                </div>
+            </div>
+            <div id="copy-to-s3-response" class="mt-3"></div>
+        </div>
+    </div>
+</div>
 
-
-<p>
-    <!-- Modal Trigger Button -->
-    <button type="button" class="btn btn-primary"
-            hx-get="/start-job-modal"
-            hx-target="body"
-            hx-swap="beforeend">
-        Start File Copy
-    </button>
-</p>
+<!-- Copy from S3 Card -->
+<div class="mb-4">
+    <div class="card">
+        <div class="card-header bg-white">
+            <strong>Copy from S3</strong>
+        </div>
+        <div class="card-body">
+            <form hx-post="/copy-from-s3" hx-target="#copy-from-s3-response" hx-swap="innerHTML">
+                <!-- hidden "theme_dir" field supplies the name of the theme directory -->
+                <input type="hidden" value="{{ dir_name }}" name="theme_dir"/>
+                <!-- Row for Replace Percentage (Slider) -->
+                <div class="mb-3">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="replacePercentage"
+                                       name="replacePercentage">
+                            </div>
+                        </div>
+                        <div class="col">
+                            <label for="replacePercentage" class="form-label mb-0">Replace % of existing files</label>
+                            <input type="range" class="form-range" id="replacePercentage" name="replacePercentage"
+                                   min="0" max="100" value="0">
+                        </div>
+                        <div class="col-auto">
+                            <span id="replacePercentageValue">0%</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Row for Copy Max Files (Number Input) -->
+                <div class="mb-3">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="copyMaxCheckbox"
+                                       name="copyMaxCheckbox">
+                            </div>
+                        </div>
+                        <div class="col">
+                            <label for="copyMaxFiles" class="form-label mb-0">Copy max of files from S3</label>
+                            <input type="number" class="form-control" id="copyMaxFiles"
+                                   onkeypress="return isNumber(event)" onpaste="return false;"
+                                   name="copyMaxFiles" placeholder="e.g. 100" step="1" min="0">
+                        </div>
+                    </div>
+                </div>
+                <!-- Do Copy Button and Hidden Field -->
+                <div class="d-flex justify-content-end align-items-center">
+                    <button type="submit" class="btn btn-primary me-2">Do Copy</button>
+                    <input type="hidden" name="theme_name" value="{{ dir_name }}">
+                </div>
+            </form>
+            <div id="copy-from-s3-response" class="mt-3"></div>
+        </div>
+    </div>
+</div>
