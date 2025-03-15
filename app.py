@@ -54,18 +54,25 @@ def index():
     config = data_manager.get_config()
 
     # create several datastructures to simplify the presentation layer's job
-    all_theme_display_names = data_manager.all_theme_display_names
-    current_theme_disk_name = config["active_theme"]  # will be like "christmas.yaml"
-    current_theme = data_manager.get_theme_by_disk_name(current_theme_disk_name)
-    current_theme_display_name = current_theme["display_name"]
-    current_styles = list(current_theme["styles"].keys())
+    try:
+        all_theme_display_names = data_manager.all_theme_display_names
+        current_theme_disk_name = config["active_theme"]  # will be like "christmas.yaml"
+        current_theme = data_manager.get_theme_by_disk_name(current_theme_disk_name)
+        current_theme_display_name = current_theme["display_name"]
+        current_styles = list(current_theme["styles"].keys())
 
-    return render_template("index.html",
-                           config=config,
-                           all_theme_names=all_theme_display_names,
-                           current_theme_display_name=current_theme_display_name,
-                           current_styles=current_styles,
-                           )
+        return render_template("index.html",
+                               config=config,
+                               config_error=f"There was a heinous problem",
+                               all_theme_names=all_theme_display_names,
+                               current_theme_display_name=current_theme_display_name,
+                               current_styles=current_styles,
+                               )
+    except Exception as e:
+        logger.error(e)
+        return render_template("index.html",
+                               config_error=f"There was a heinous problem: {str(e)}",
+                               )
 
 
 @app.route("/update_config", methods=["POST"])
@@ -273,10 +280,12 @@ def cancel_job():
     # Insert your cancellation logic here.
     return Response('', status=204)
 
+
 @app.route('/copy-to-s3', methods=['POST'])
 def copy_to_s3():
     # Stub: implement S3 copy logic here
     return "Copy to S3 initiated."
+
 
 @app.route('/copy-from-s3', methods=['POST'])
 def copy_from_s3():

@@ -24,17 +24,25 @@
 
     <!-- Error Modal (Startup Errors) -->
     {% if config_error %}
-        <div id="startup-error-modal" class="modal d-flex align-items-center justify-content-center show" tabindex="-1"
-             style="background-color: rgba(0, 0, 0, 0.5); display: block;">
+        <div class="modal fade" id="startup-error-modal" tabindex="-1" aria-labelledby="startupErrorModalLabel"
+             aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content p-4">
-                    <h2 class="fs-5 fw-bold text-danger">Error</h2>
-                    <p>{{ config_error }}</p>
-                    <button onclick="closeStartupErrorModal()" class="btn btn-danger mt-3">Close</button>
+                    <div class="modal-header">
+                        <h5 class="modal-title text-danger" id="startupErrorModalLabel">Error</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>{{ config_error }}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    </div>
                 </div>
             </div>
         </div>
     {% endif %}
+
 
     <!-- Display Duration -->
     <div class="d-flex align-items-center justify-content-between mb-3">
@@ -140,45 +148,51 @@
 </div>
 <!-- Error Modal -->
 <div class="modal fade" id="error-modal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title text-danger" id="errorModalLabel">Error</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <p id="error-message"></p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-      </div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="errorModalLabel">Error</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="error-message"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick="closeErrorModal()">
+                    Close
+                </button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 <!-- Help Modal -->
-<div class="modal fade" id="modal-container" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalTitle"></h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <p id="modal-text"></p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
-      </div>
+<div id="modal-container" class="modal fade" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="modal-text"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 
 <script>
-    function closeStartupErrorModal() {
-        document.getElementById("startup-error-modal").classList.add("hidden");
-    }
+    document.addEventListener("DOMContentLoaded", function () {
+        var errorModalEl = document.getElementById("startup-error-modal");
+        if (errorModalEl) {
+            var errorModal = new bootstrap.Modal(errorModalEl);
+            errorModal.show();
+        }
+    });
 </script>
 </body>
 </html>

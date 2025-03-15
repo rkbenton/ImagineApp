@@ -9,10 +9,54 @@ const helpTexts = {
     "help-min-rating": "Minimum rating filter for local-files-only slideshow."
 };
 
-function openModal(helpKey) {
-    document.getElementById("modal-title").textContent = "Help";
-    document.getElementById("modal-text").textContent = helpTexts[helpKey];
-    document.getElementById("modal-container").classList.remove("hidden");
+function openModal(helpId) {
+  // Get the help modal container and its content elements
+  var modalContainer = document.getElementById("modal-container");
+  var modalTitle = document.getElementById("modalTitle");
+  var modalText = document.getElementById("modal-text");
+
+  // Set modal content based on helpId
+  switch (helpId) {
+    case "help-display-duration":
+      modalTitle.textContent = "Display Duration Help";
+      modalText.textContent = "This setting controls how long each slide is displayed.";
+      break;
+    case "help-full-screen":
+      modalTitle.textContent = "Full Screen Help";
+      modalText.textContent = "Toggle full screen mode for the display.";
+      break;
+    case "help-local-files":
+      modalTitle.textContent = "Local Files Only Help";
+      modalText.textContent = "Restrict the slideshow to local files only.";
+      break;
+    case "help-min-rating":
+      modalTitle.textContent = "Minimum Rating Help";
+      modalText.textContent = "Set the minimum rating for files to be included in the slideshow.";
+      break;
+    case "help-max-files":
+      modalTitle.textContent = "Max Num Saved Files Help";
+      modalText.textContent = "This setting controls the maximum number of files that can be saved.";
+      break;
+    case "help-bg-color":
+      modalTitle.textContent = "Background Color Help";
+      modalText.textContent = "Choose a background color for the display.";
+      break;
+    case "help-theme":
+      modalTitle.textContent = "Active Theme Help";
+      modalText.textContent = "Select the active theme from the dropdown.";
+      break;
+    case "help-style":
+      modalTitle.textContent = "Active Style Help";
+      modalText.textContent = "Select the style to apply to the display.";
+      break;
+    default:
+      modalTitle.textContent = "Help";
+      modalText.textContent = "";
+  }
+
+  // Use Bootstrap's modal API to show the modal
+  var modal = new bootstrap.Modal(modalContainer);
+  modal.show();
 }
 
 function closeModal() {
