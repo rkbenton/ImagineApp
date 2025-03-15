@@ -272,3 +272,13 @@ def cancel_job():
     job_progress = 0
     # Insert your cancellation logic here.
     return Response('', status=204)
+
+@app.route('/copy-to-s3', methods=['POST'])
+def copy_to_s3():
+    # Stub: implement S3 copy logic here
+    return "Copy to S3 initiated."
+
+@app.route('/copy-from-s3', methods=['POST'])
+def copy_from_s3():
+    # Stub: implement S3 copy-from logic here
+    return "Copy from S3 initiated."
