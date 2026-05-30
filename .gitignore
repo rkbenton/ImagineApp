@@ -1,3 +1,8 @@
+# stray virtualenv directories
+"#"/
+Create/
+new/
+
 # database stuff
 *.db
 

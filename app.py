@@ -36,8 +36,8 @@ job_manager = JobManager()
 data_manager = ImImConfigManager()
 local_file_utils = LocalFileUtils(data_manager)
 
-if __name__ == "__app__":
-    app.run(host='0.0.0.0', port=5000, ssl_context='adhoc')
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5000, ssl_context='adhoc')  # nosec B104 - dev server only
 
 
 def simulate_job():
