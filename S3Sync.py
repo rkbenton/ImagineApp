@@ -273,7 +273,7 @@ def cleanse_s3_dupes(s3_files, s3: S3Manager) -> bool:
         logger.info(f"\nFound dupes for approximate key '{akey}'")
         for dupe in the_list:
             this_one = " <-- will delete"
-            if None == item_with_rating:
+            if item_with_rating is None:
                 match = imim_utils.RATING_PATTERN.search(dupe['name'])
                 if match:
                     item_with_rating = dupe
@@ -288,7 +288,7 @@ def cleanse_s3_dupes(s3_files, s3: S3Manager) -> bool:
                 logger.info(f"\t\tdeleted: {dupe['name']}")
                 dupes_deleted += 1
         else:
-            logger.info(f"Not sure what to delete; you should really look into it!")
+            logger.info("Not sure what to delete; you should really look into it!")
 
     if dupes_deleted > 0:
         logger.info(f"We deleted {dupes_deleted} dupes in s3")

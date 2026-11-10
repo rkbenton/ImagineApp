@@ -26,7 +26,7 @@ def sizeof_fmt(num, suffix="B"):
 def is_file_rated(filepath: str) -> bool:
     result: bool = False
     if os.path.isfile(filepath) and is_image_file(filepath):
-        result = RATING_PATTERN.search(filepath)
+        result = RATING_PATTERN.search(filepath) is not None
     return result
 
 def is_image_file(file_path: str) -> bool:

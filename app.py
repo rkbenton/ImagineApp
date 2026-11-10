@@ -36,6 +36,11 @@ job_manager = JobManager()
 data_manager = ImImConfigManager()
 local_file_utils = LocalFileUtils(data_manager)
 
+# State written by simulate_job() (the demo job).
+job_progress: int = 0
+job_running: bool = False
+job_failure: Exception | None = None
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, ssl_context='adhoc')  # nosec B104 - dev server only
 
@@ -63,7 +68,7 @@ def index():
 
         return render_template("index.html",
                                config=config,
-                               config_error=f"There was a heinous problem",
+                               config_error="There was a heinous problem",
                                all_theme_names=all_theme_display_names,
                                current_theme_display_name=current_theme_display_name,
                                current_styles=current_styles,
@@ -105,6 +110,8 @@ def update_config():
 def get_styles():
     # get the selected theme display name
     theme_display_name = request.args.get("theme")
+    if theme_display_name is None:
+        return jsonify({"error": "Missing 'theme' parameter"}), 400
     # get the theme's styles based on the display name
     style_names: List[str] = data_manager.get_style_names_by_display_name(theme_display_name)
     return jsonify(style_names)
@@ -162,7 +169,7 @@ def directory_info():
                 <ul>
                     <li><b>File count:</b> {file_count}</li>
                     <li><b>Num unrated files:</b> {num_unrated_images}</li>
-                    <li><b>Total size:</b> {LocalFileUtils.sizeof_fmt(total_size)}</li>
+                    <li><b>Total size:</b> {imim_utils.sizeof_fmt(total_size)}</li>
                     <li><b>Max number of saved files:</b> {max_files}</li>
                 <ul>
 """
@@ -219,7 +226,7 @@ def start_job():
 @app.route('/job-progress')
 def job_progress_endpoint():
     job_id = request.args.get('job_id')
-    task: LongTaskABC = job_manager.get_task(job_id)
+    task: LongTaskABC | None = job_manager.get_task(job_id) if job_id else None
     if not task:
         logger.warning(f"Job {job_id} not found by job_manager")
         return "Invalid job", 404
@@ -244,7 +251,7 @@ def job_progress_endpoint():
         cancel_button_html = cancel_button_html_template.format(button_txt="Done!", job_id=job_id)
     elif task.failed():
         logger.warning("The job failed.")
-        reason: Exception = task.get_failure()
+        reason: Exception | None = task.get_failure()
         status_text = f"An error occurred! {str(reason)}"
         cancel_button_html = cancel_button_html_template.format(button_txt="Wah!", job_id=job_id)
     elif task.is_canceled():
@@ -274,9 +281,6 @@ def cancel_job():
     # For now, just change the Cancel button to Done
     # new_button = '<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Done</button>'
     # return new_button
-    job_running = False
-    job_complete = True
-    job_progress = 0
     # Insert your cancellation logic here.
     return Response('', status=204)
 

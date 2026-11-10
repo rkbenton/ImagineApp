@@ -5,7 +5,7 @@ from LongTaskABC import LongTaskABC
 
 class JobManager:
     def __init__(self):
-        self.tasks:dict[LongTaskABC] = {}
+        self.tasks: dict[str, LongTaskABC] = {}
 
     def start_task(self, task: LongTaskABC) -> str:
         """
@@ -24,7 +24,7 @@ class JobManager:
         :param job_id: the unique id of the job.
         :return: the task if JobManager is tracking it, or None otherwise.
         """
-        if not(job_id in self.tasks):
+        if job_id not in self.tasks:
             return None
         task = self.tasks.get(job_id)
         return task

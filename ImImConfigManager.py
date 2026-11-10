@@ -26,12 +26,12 @@ class ImImConfigManager:
         if self._initialized:
             return  # Prevent re-initialization
 
-        self.theme_data = None
+        self.theme_data: Dict[str, Dict[str, str]] | None = None
         self.all_theme_display_names: List[str] = []
         self.disk_name_to_theme = {}
         self.display_name_to_theme = {}
 
-        self.config_error = None  # No errors
+        self.config_error: str | None = None  # No errors
         load_dotenv()
 
         # Required environment variables
@@ -85,13 +85,13 @@ class ImImConfigManager:
         """Save the current config data to file."""
         try:
             with self._lock, open(self.config_path, "w") as file:
-                json.dump(self.config_data, file, indent=4)  # type: ignore
+                json.dump(self.config_data, file, indent=4)
             return True
         except OSError as e:
             print(f"Error saving config: {e}")
             return False
 
-    def get_config_error(self) -> str:
+    def get_config_error(self) -> str | None:
         """Return any configuration error message."""
         return self.config_error
 
@@ -123,7 +123,7 @@ class ImImConfigManager:
 
     def get_themes(self) -> Dict[str, Dict[str, str]]:
         """Return the available themes (display_name mapped to metadata)."""
-        return self.theme_data
+        return self.theme_data or {}
 
     def get_theme_by_disk_name(self, disk_name: str):
         return self.disk_name_to_theme[disk_name]

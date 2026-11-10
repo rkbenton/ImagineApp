@@ -25,7 +25,7 @@ class LongTaskABC(ABC):
     ```
     """
 
-    def __init__(self, job_id=None):
+    def __init__(self, job_id: str | None = None):
         """
 
         :param job_id: a unique identifier for the job; if None,
@@ -36,11 +36,8 @@ class LongTaskABC(ABC):
         self._progress: int = 0
         self._cancelled: bool = False
         self._failed: bool = False
-        self._failure: Exception = None
-        self._job_id: str = job_id
-
-        if self._job_id is None:
-            self._job_id = str(uuid.uuid4())
+        self._failure: Exception | None = None
+        self._job_id: str = job_id if job_id is not None else str(uuid.uuid4())
 
     @abstractmethod
     def execute(self) -> None:
@@ -89,7 +86,7 @@ class LongTaskABC(ABC):
         self._working = False
         return self._failed
 
-    def get_failure(self) -> Exception:
+    def get_failure(self) -> Exception | None:
         return self._failure
 
     def get_job_id(self) -> str:
